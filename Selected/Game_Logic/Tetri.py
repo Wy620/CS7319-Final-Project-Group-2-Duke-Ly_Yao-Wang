@@ -1,4 +1,4 @@
-from Tetrimino_list import L,T,TETRIMINO
+from Tetrimino_list import TETRIMINO
 import pygame
 from Board import ROW,COL,SIZE,SCORE_FEILD,Board
 import random

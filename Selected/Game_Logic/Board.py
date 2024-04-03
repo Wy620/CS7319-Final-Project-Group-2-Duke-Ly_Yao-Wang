@@ -49,7 +49,7 @@ class Board():
         for i in range(COL):
             if self.board[i][0]:
                 return True
-            
+
     def Restart(self):
         self.board = np.zeros((COL,ROW))
         self.score = 0
@@ -57,7 +57,7 @@ class Board():
     def Update(self,surface):
         self.Load_Game(surface)
         self.score += self.Get_Score()
-        self.score_font = pygame.font.Font('Selected\Game_Logic\SmileySans-Oblique.ttf',80).render(str(self.score),True,'white')
+        self.score_font = pygame.font.Font('*./SmileySans-Oblique.ttf',80).render(str(self.score),True,'white')
         self.score_font_rect = self.score_font.get_rect(center = SCORE_POS)
         self.Load_Side(surface)
         self.Get_Score()

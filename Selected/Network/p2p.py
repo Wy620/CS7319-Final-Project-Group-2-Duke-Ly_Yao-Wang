@@ -1,6 +1,7 @@
 import socket
 from threading import Thread
 
+
 class Peer:
     def __init__(self, ip_address, invite_code):
         self.ip_address = ip_address
@@ -81,6 +82,7 @@ class Peer:
         for socket_connection in self.connections:
             socket_connection.close()
         self.connections.clear()
+
 
 if __name__ == "__main__":
     ip_address = input("Enter your IP address: ")
