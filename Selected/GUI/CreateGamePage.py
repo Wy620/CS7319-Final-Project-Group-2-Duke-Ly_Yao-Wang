@@ -89,14 +89,27 @@ while running:
     # Draw "Join Battle" button
     draw_button(screen, 550, 125, 150, 50, GRAY, "Create Game")
 
+    # Draw "Go Back" button
+    draw_button(screen, 50, 300, 150, 50, GRAY, "Back")
+
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if 50 < mouse_pos[0] < 200 and 300 < mouse_pos[1] < 350:
+                from StartPage import main as back_to_main
+                back_to_main()
+            elif 550 < mouse_pos[0] < 700 and 125 < mouse_pos[1] < 175:
+                from BattlePage import mian as battle_page
+                battle_page()
+
         player_ip_input.handle_event(event)
         invite_code_input.handle_event(event)
 
-    pygame.display.flip()
+        pygame.display.flip()
+
 
 # Quit Pygame
 pygame.quit()

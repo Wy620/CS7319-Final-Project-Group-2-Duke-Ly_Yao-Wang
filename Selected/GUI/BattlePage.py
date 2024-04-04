@@ -73,6 +73,17 @@ while running:
 
     pygame.display.flip()
 
+    # Here you can integrate your game logic
+    if GAME_ON:
+        screen.fill(WHITE)
+        # Main_Window.fill("#ffffff")
+        Game_Board.Update(screen)
+        # my_tetrimino.Draw(Main_Window,my_tetrimino.tetrimino,'red',my_tetrimino.rotation)
+        my_tetrimino.update(screen, my_tetrimino.tetrimino, 'red', my_tetrimino.rotation)
+        pygame.display.update()
+        if Game_Board.Game_Over():
+            GAME_ON = False
+
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
