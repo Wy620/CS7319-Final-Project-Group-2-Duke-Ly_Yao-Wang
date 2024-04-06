@@ -8,10 +8,20 @@ FPS = 30
 GAME_ON = True
 pygame.init()
 
-Main_Window = pygame.display.set_mode(((COL + SCORE_FEILD) * SIZE, ROW * SIZE))
+window_width = (COL * SIZE) * 2 + (SCORE_FEILD * SIZE) * 2
+window_height = ROW * SIZE
+Main_Window = pygame.display.set_mode((window_width, window_height))
+
 
 my_tetrimino = Tetrimino()
 clock = pygame.time.Clock()
+
+Online_Game_Board = Board()
+
+
+def get_online_player_state():
+    pass
+
 
 while True:
     clock.tick(FPS)
@@ -93,10 +103,14 @@ while True:
     if GAME_ON:
         Main_Window.fill("#ffffff")
         Game_Board.Update(Main_Window)
-        # my_tetrimino.Draw(Main_Window,my_tetrimino.tetrimino,'red',my_tetrimino.rotation)
-        my_tetrimino.update(Main_Window, my_tetrimino.tetrimino, 'red', my_tetrimino.rotation)
+        my_tetrimino.update(Main_Window, my_tetrimino.tetrimino, 'blue', my_tetrimino.rotation)
+
+        online_player_state = get_online_player_state()
+        Online_Game_Board.Set_State(online_player_state)
+        Online_Game_Board.Update(Main_Window, offset_x=(COL + SCORE_FEILD) * SIZE)
+
         pygame.display.update()
-        if Game_Board.Game_Over():
+        if Game_Board.Game_Over() or Online_Game_Board.Game_Over():
             GAME_ON = False
 
 

@@ -16,7 +16,7 @@ SCREEN_HEIGHT = 400
 
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Connect to Another Player")
+pygame.display.set_caption("Crate a game")
 
 # Text Input box class
 class TextInputBox:
@@ -30,11 +30,11 @@ class TextInputBox:
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
-                self.active = True
+                self.active = not self.active
             else:
                 self.active = False
             self.color = GRAY if self.active else WHITE
-        elif event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             if self.active:
                 if event.key == pygame.K_RETURN:
                     self.active = False
@@ -69,7 +69,7 @@ while running:
     screen.fill(WHITE)
 
     # Draw "Connect to another player" text centered at the top
-    connect_text = font.render("Connect to another player", True, BLACK)
+    connect_text = font.render("Crate a game", True, BLACK)
     connect_rect = connect_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
     screen.blit(connect_text, connect_rect)
 
@@ -87,7 +87,7 @@ while running:
     invite_code_input.draw(screen)
 
     # Draw "Join Battle" button
-    draw_button(screen, 550, 125, 150, 50, GRAY, "Join Battle")
+    draw_button(screen, 550, 125, 150, 50, GRAY, "Create Game")
 
     # Draw "Go Back" button
     draw_button(screen, 50, 300, 150, 50, GRAY, "Back")
@@ -102,13 +102,14 @@ while running:
                 from StartPage import main as back_to_main
                 back_to_main()
             elif 550 < mouse_pos[0] < 700 and 125 < mouse_pos[1] < 175:
-                from BattlePage import mian as battle_page
+                from Selected.Game_Logic.BattlePage import mian as battle_page
                 battle_page()
 
         player_ip_input.handle_event(event)
         invite_code_input.handle_event(event)
 
-    pygame.display.flip()
+        pygame.display.flip()
+
 
 # Quit Pygame
 pygame.quit()

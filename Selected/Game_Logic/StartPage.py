@@ -62,11 +62,11 @@ while running:
             if 500 < mouse_pos[0] < 500 + BUTTON_WIDTH:
                 if 150 < mouse_pos[1] < 150 + BUTTON_HEIGHT:
                     print("Starting a new game...")
-                    from CreateGamePage import main as create_game_main
+                    from Selected.Game_Logic.CreateGamePage import main as create_game_main
                     create_game_main()
                 elif 225 < mouse_pos[1] < 225 + BUTTON_HEIGHT:
                     print("Joining a game...")
-                    from PlayerConnectPage import main as join_game_main
+                    from Selected.Game_Logic.PlayerConnectPage import main as join_game_main
                     join_game_main()
                 elif 300 < mouse_pos[1] < 300 + BUTTON_HEIGHT:
                     running = False

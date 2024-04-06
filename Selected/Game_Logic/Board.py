@@ -14,20 +14,23 @@ class Board():
         self.board = np.zeros((COL,ROW))
         self.score = 0
 
-    def Load_Game(self,surface):
+
+    def Load_Game(self, surface, offset_x=0):
         for j in range(COL):
             for i in range(ROW):
+                x_position = j * SIZE + offset_x
                 if self.board[j][i] == 0:
-                    pygame.draw.rect(surface,COLOR_NONE,(j*SIZE,i*SIZE,SIZE-1,SIZE-1))
+                    pygame.draw.rect(surface, COLOR_NONE, (x_position, i * SIZE, SIZE - 1, SIZE - 1))
                 if self.board[j][i] == 1:
-                    pygame.draw.rect(surface,'red',(j*SIZE,i*SIZE,SIZE-1,SIZE-1))
+                    pygame.draw.rect(surface, 'red', (x_position, i * SIZE, SIZE - 1, SIZE - 1))
 
-    def Load_Side(self,surface):
-        for i in range(COL,COL + SCORE_FEILD):
+    def Load_Side(self, surface, offset_x=0):
+        for i in range(COL, COL + SCORE_FEILD):
             for j in range(ROW):
-                pygame.draw.rect(surface,COLOR_NONE,(i*SIZE,j*SIZE,SIZE,SIZE))
+                x_position = i * SIZE + offset_x
+                pygame.draw.rect(surface, COLOR_NONE, (x_position, j * SIZE, SIZE, SIZE))
 
-        surface.blit(self.score_font,self.score_font_rect)
+        surface.blit(self.score_font, self.score_font_rect)
 
     def Get_Score(self):
         score = 0
@@ -54,10 +57,13 @@ class Board():
         self.board = np.zeros((COL,ROW))
         self.score = 0
 
-    def Update(self,surface):
-        self.Load_Game(surface)
+    def Update(self, surface, offset_x=0):
+        self.Load_Game(surface, offset_x)
         self.score += self.Get_Score()
-        self.score_font = pygame.font.Font('Selected\Game_Logic\SmileySans-Oblique.ttf',80).render(str(self.score),True,'white')
-        self.score_font_rect = self.score_font.get_rect(center = SCORE_POS)
-        self.Load_Side(surface)
+        self.score_font = pygame.font.Font('SmileySans-Oblique.ttf',80).render(str(self.score),True,'white')
+        self.score_font_rect = self.score_font.get_rect(center = (SCORE_POS[0] + offset_x, SCORE_POS[1]))
+        self.Load_Side(surface, offset_x)
         self.Get_Score()
+
+    def Set_State(self, online_player_state):
+        pass
