@@ -1,5 +1,10 @@
 import pygame
 import sys
+from ..Game_Logic.Game import Game
+from Board import ROW, COL, SIZE, SCORE_FEILD, Board
+from Tetri import Tetrimino, Game_Board
+from Tetrimino_list import T, J, L, S, O, I, Z
+
 
 # Colors
 WHITE = (255, 255, 255)
@@ -23,6 +28,7 @@ NEXT_SHAPE_BOX_SIZE = 30
 NEXT_SHAPE_TEXT_OFFSET = 10
 
 # Set up the screen
+pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Tetris Start Page")
 
@@ -73,14 +79,20 @@ while running:
 
     pygame.display.flip()
 
-    # Here you can integrate your game logic
     if GAME_ON:
-        screen.fill(WHITE)
-        # Main_Window.fill("#ffffff")
-        Game_Board.Update(screen)
-        # my_tetrimino.Draw(Main_Window,my_tetrimino.tetrimino,'red',my_tetrimino.rotation)
-        my_tetrimino.update(screen, my_tetrimino.tetrimino, 'red', my_tetrimino.rotation)
-        pygame.display.update()
+        # Update and render game board for each player
+        player1_board.update()
+        player2_board.update()
+
+        # Define positions for each player's board on the screen
+        player1_board_position = (25, 50)  # Example position for player 1
+        player2_board_position = (425, 50)  # Example position for player 2
+
+        # Render the boards at specified positions
+        player1_board.render(screen, player1_board_position)
+        player2_board.render(screen, player2_board_position)
+
+        pygame.display.update()  # Update the entire screen
         if Game_Board.Game_Over():
             GAME_ON = False
 
