@@ -112,6 +112,3 @@ while True:
         pygame.display.update()
         if Game_Board.Game_Over() or Online_Game_Board.Game_Over():
             GAME_ON = False
-
-
-

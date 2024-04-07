@@ -1,7 +1,6 @@
 import socket
 from threading import Thread
 
-
 class Peer:
     def __init__(self, ip_address, invite_code):
         self.ip_address = ip_address
