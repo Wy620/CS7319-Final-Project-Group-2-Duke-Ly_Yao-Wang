@@ -1,11 +1,12 @@
 import pygame
 import sys
+from waiting_to_join_page import WaitingToJoinPage
+from P2P import Peer
 
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
-RED = (255, 0, 0)
 
 # Initialize Pygame
 pygame.init()
@@ -16,7 +17,8 @@ SCREEN_HEIGHT = 400
 
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Crate a game")
+pygame.display.set_caption("Create a game")
+
 
 # Text Input box class
 class TextInputBox:
@@ -48,6 +50,7 @@ class TextInputBox:
         font_surface = self.font.render(self.text, True, BLACK)
         screen.blit(font_surface, (self.rect.x + 5, self.rect.y + 5))
 
+
 # Create font
 font = pygame.font.Font(None, 32)
 
@@ -69,7 +72,7 @@ while running:
     screen.fill(WHITE)
 
     # Draw "Connect to another player" text centered at the top
-    connect_text = font.render("Crate a game", True, BLACK)
+    connect_text = font.render("Create a game", True, BLACK)
     connect_rect = connect_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
     screen.blit(connect_text, connect_rect)
 
@@ -82,34 +85,39 @@ while running:
     invite_code_rect = invite_code_label.get_rect(topleft=(50, 150))
     screen.blit(invite_code_label, invite_code_rect)
 
-    # Draw input boxes
+    # Draw UI elements
+    draw_button(screen, 550, 125, 150, 50, GRAY, "Create Game")
+    draw_button(screen, 50, 300, 150, 50, GRAY, "Back")
     player_ip_input.draw(screen)
     invite_code_input.draw(screen)
-
-    # Draw "Join Battle" button
-    draw_button(screen, 550, 125, 150, 50, GRAY, "Create Game")
-
-    # Draw "Go Back" button
-    draw_button(screen, 50, 300, 150, 50, GRAY, "Back")
 
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Handle mouse clicks
             mouse_pos = pygame.mouse.get_pos()
             if 50 < mouse_pos[0] < 200 and 300 < mouse_pos[1] < 350:
                 from StartPage import main as back_to_main
                 back_to_main()
             elif 550 < mouse_pos[0] < 700 and 125 < mouse_pos[1] < 175:
-                from Selected.Game_Logic.BattlePage import mian as battle_page
-                battle_page()
+                # Validate IP address and invite code
+                create_ip_address = player_ip_input.text
+                create_invite_code = invite_code_input.text
+                peer = Peer(create_ip_address, create_invite_code)
+                waiting_page = WaitingToJoinPage()
+                waiting_page.run()
+                # Proceed to battle page
+                from Selected.Game_Logic.BattlePage import main as battle_page
+                battle_page(peer)
+                running = False
+
 
         player_ip_input.handle_event(event)
         invite_code_input.handle_event(event)
 
         pygame.display.flip()
-
 
 # Quit Pygame
 pygame.quit()

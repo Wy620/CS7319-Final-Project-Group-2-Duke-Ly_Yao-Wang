@@ -1,5 +1,7 @@
 import pygame
 import sys
+from waiting_to_join_page import WaitingToJoinPage
+from P2P import Peer
 
 # Colors
 WHITE = (255, 255, 255)
@@ -97,18 +99,27 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Handle mouse clicks
             mouse_pos = pygame.mouse.get_pos()
             if 50 < mouse_pos[0] < 200 and 300 < mouse_pos[1] < 350:
                 from StartPage import main as back_to_main
+
                 back_to_main()
             elif 550 < mouse_pos[0] < 700 and 125 < mouse_pos[1] < 175:
-                from Selected.Game_Logic.BattlePage import mian as battle_page
-                battle_page()
+                join_ip_address = player_ip_input.text
+                join_invite_code = invite_code_input.text
+                peer = Peer(join_ip_address, join_invite_code)
+                waiting_page = WaitingToJoinPage()
+                waiting_page.run()
+                # Proceed to battle page
+                from Selected.Game_Logic.BattlePage import main as battle_page
+                battle_page(peer)
+                running = False
 
         player_ip_input.handle_event(event)
         invite_code_input.handle_event(event)
 
-    pygame.display.flip()
+        pygame.display.flip()
 
 # Quit Pygame
 pygame.quit()

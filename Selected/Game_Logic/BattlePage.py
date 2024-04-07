@@ -3,6 +3,7 @@ import sys
 from Board import ROW, COL, SIZE, SCORE_FEILD, Board
 from Tetri import Tetrimino, Game_Board
 from Tetrimino_list import T, J, L, S, O, I, Z
+from P2P import Peer
 
 FPS = 30
 GAME_ON = True
@@ -18,9 +19,25 @@ clock = pygame.time.Clock()
 
 Online_Game_Board = Board()
 
+peer = Peer('your_ip_address', 'your_invite_code')
+peer.start_accepting_connections()
+
 
 def get_online_player_state():
-    pass
+    online_player_state = {}
+
+    for player_peer in peer.connections:
+        try:
+            player_peer.send_message("request_state")
+            response = player_peer.receive_message()
+
+            if response:
+                online_player_state[player_peer.ip_address] = response
+        except Exception as e:
+            print(f"Error getting game state from {player_peer.ip_address}: {e}")
+
+    return online_player_state
+
 
 
 while True:

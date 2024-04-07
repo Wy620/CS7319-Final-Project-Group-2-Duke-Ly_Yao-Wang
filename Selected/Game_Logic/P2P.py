@@ -11,18 +11,33 @@ class Peer:
         self.server_socket = None
         self.invite_code = invite_code
 
+        print("IP Address:", self.ip_address)
+        print("Invite Code:", self.invite_code)
+
     def connect(self, target_ip_address, invite_code):
-        socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_connection.connect((target_ip_address, self.port))
-        socket_connection.sendall(invite_code.encode())
-        response = socket_connection.recv(1024).decode()
-        if response == "Accepted":
-            print("Connection established with peer")
-            self.connections.append(socket_connection)
-            self.start_communication(socket_connection)
-        else:
-            print("Connection refused. Invalid invite code.")
-            socket_connection.close()
+        if target_ip_address != self.ip_address:
+            print("Invalid IP address. Connection refused.")
+            return
+
+        if invite_code != self.invite_code:
+            print("Invalid invite code. Connection refused.")
+            return
+
+        try:
+            socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_connection.connect((target_ip_address, self.port))
+            socket_connection.sendall(invite_code.encode())
+            response = socket_connection.recv(1024).decode()
+            if response == "Accepted":
+                print("Connection established with peer")
+                self.connections.append(socket_connection)
+                self.start_communication(socket_connection)
+            else:
+                print("Connection refused. Invalid invite code.")
+                socket_connection.close()
+        except Exception as e:
+            print("Error connecting to peer:", e)
+
 
     def start_accepting_connections(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -105,6 +120,8 @@ class Peer:
         elif message['type'] == 'player_action':
             player_action = message['data']
             # Process received player action
+
+
 
 if __name__ == "__main__":
     ip_address = input("Enter your IP address: ")
