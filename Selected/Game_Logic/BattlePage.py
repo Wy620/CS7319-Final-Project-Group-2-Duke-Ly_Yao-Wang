@@ -19,27 +19,6 @@ clock = pygame.time.Clock()
 
 Online_Game_Board = Board()
 
-peer = Peer('your_ip_address', 'your_invite_code')
-peer.start_accepting_connections()
-
-
-def get_online_player_state():
-    online_player_state = {}
-
-    for player_peer in peer.connections:
-        try:
-            player_peer.send_message("request_state")
-            response = player_peer.receive_message()
-
-            if response:
-                online_player_state[player_peer.ip_address] = response
-        except Exception as e:
-            print(f"Error getting game state from {player_peer.ip_address}: {e}")
-
-    return online_player_state
-
-
-
 while True:
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -118,13 +97,17 @@ while True:
                     my_tetrimino.rotation = 0
 
     if GAME_ON:
+        #local
         Main_Window.fill("#ffffff")
         Game_Board.Update(Main_Window)
         my_tetrimino.update(Main_Window, my_tetrimino.tetrimino, 'blue', my_tetrimino.rotation)
+        local_state = {"board": Game_Board.board, "score": Game_Board.score, "tetrimino": my_tetrimino.tetrimino}
+        #peer.send_data(local_state)
 
-        online_player_state = get_online_player_state()
-        Online_Game_Board.Set_State(online_player_state)
-        Online_Game_Board.Update(Main_Window, offset_x=(COL + SCORE_FEILD) * SIZE)
+        #online
+        #remote_state = peer.receive_data()
+        #Online_Game_Board.board = remote_state.get("board")
+        #Online_Game_Board.score = remote_state.get("score")
 
         pygame.display.update()
         if Game_Board.Game_Over() or Online_Game_Board.Game_Over():

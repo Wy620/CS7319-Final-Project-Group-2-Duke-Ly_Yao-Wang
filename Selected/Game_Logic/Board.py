@@ -64,6 +64,3 @@ class Board():
         self.score_font_rect = self.score_font.get_rect(center = (SCORE_POS[0] + offset_x, SCORE_POS[1]))
         self.Load_Side(surface, offset_x)
         self.Get_Score()
-
-    def Set_State(self, online_player_state):
-        pass

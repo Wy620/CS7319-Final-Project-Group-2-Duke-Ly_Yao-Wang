@@ -1,6 +1,6 @@
+
 import pygame
 import sys
-from waiting_to_join_page import WaitingToJoinPage
 from P2P import Peer
 
 # Colors
@@ -106,15 +106,21 @@ while running:
 
                 back_to_main()
             elif 550 < mouse_pos[0] < 700 and 125 < mouse_pos[1] < 175:
-                join_ip_address = player_ip_input.text
-                join_invite_code = invite_code_input.text
+
+                join_ip_address = player_ip_input.text if player_ip_input.text else "127.0.0.1"
+                join_invite_code = invite_code_input.text if invite_code_input.text else "test123"
+
                 peer = Peer(join_ip_address, join_invite_code)
-                waiting_page = WaitingToJoinPage()
-                waiting_page.run()
-                # Proceed to battle page
-                from Selected.Game_Logic.BattlePage import main as battle_page
-                battle_page(peer)
-                running = False
+                peer.connect()
+
+                if peer.connected:
+                    print("Successfully connected to the server.")
+                    from Selected.Game_Logic.BattlePage import main as battle_page
+
+                    battle_page()
+                    running = False
+                else:
+                    print("Failed to connect to the server. Please try again.")
 
         player_ip_input.handle_event(event)
         invite_code_input.handle_event(event)
