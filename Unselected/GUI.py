@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import font as tkfont
+from tkinter import messagebox
 from threading import Thread
 from Network import Ipv4Checker
 from Network import Peer
@@ -116,7 +117,8 @@ class CreateGamePage(tk.Toplevel):
         invite_code_label.place(x=50, y=200, anchor="nw")
 
         # Draw "Create Game" button
-        create_button = tk.Button(self, text="Create Game", font=tkfont.Font(family="Helvetica", size=14), command=self.go_to_battle_page)
+        create_button = tk.Button(self, text="Create Game", font=tkfont.Font(family="Helvetica", size=14),
+                                  command=self.go_to_battle_page)
         create_button.place(x=750, y=175, width=BUTTON_WIDTH, height=BUTTON_HEIGHT)
 
         # Draw "Go Back" button
@@ -222,6 +224,11 @@ class BattlePage(tk.Toplevel):
         super().__init__(master)
         self.title("Tetris Battle Page")
         self.peer = peer
+        self.player_score_label = None
+        self.player_timer_label = None
+        self.opponent_score_label = None
+        self.opponent_timer_label = None
+        self.time_limit = 360 * 1000  # 360s in ms
 
         self.setup_ui()
 
@@ -255,6 +262,8 @@ class BattlePage(tk.Toplevel):
         # Place Opponent Next Shape window on the canvas
         self.opponentNextShapeBox.canvas.place(x=SCREEN_WIDTH // 2 + 325, y=75)
 
+        self.refresh_timer()  # Start timer
+
     def setup_ui(self):
         # Create canvas
         self.canvas = tk.Canvas(self, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, bg=WHITE)
@@ -275,10 +284,10 @@ class BattlePage(tk.Toplevel):
         self.draw_next_shape_box(SCREEN_WIDTH // 2 + 325, 75)
 
         # Draw labels
-        self.create_text_and_label(375, 300, "Your Score", 320)
-        self.create_text_and_label(375, 450, "Timer", 470)
-        self.create_text_and_label(SCREEN_WIDTH // 2 + 375, 300, "Opponent Score", 320)
-        self.create_text_and_label(SCREEN_WIDTH // 2 + 375, 450, "Opponent Timer", 470)
+        self.player_score_label = self.create_text_and_label(375, 300, "Your Score", 320)
+        self.player_timer_label = self.create_text_and_label(375, 450, "Timer", 470)
+        self.opponent_score_label = self.create_text_and_label(SCREEN_WIDTH // 2 + 400, 300, "Opponent Score", 320)
+        self.opponent_timer_label = self.create_text_and_label(SCREEN_WIDTH // 2 + 400, 450, "Opponent Timer", 470)
 
     def draw_tetris_grid(self, x, y):
         self.canvas.create_rectangle(x, y, x + 10 * 25, y + 20 * 25, outline=GRAY)
@@ -290,22 +299,60 @@ class BattlePage(tk.Toplevel):
         self.canvas.create_text(x, y, text=text, fill=BLACK, font=("Helvetica", 16, "bold"))
         label = tk.Label(self, text="0", font=("Helvetica", 16, "bold"))
         label.place(x=x, y=label_y)
+        return label
 
-    def draw_buttons(self):
-        # Draw "Back" button
-        back_button = tk.Button(self, text="Back", font=tkfont.Font(family="Helvetica", size=14), command=self.go_back)
-        back_button.pack()
+    def refresh_timer(self):
+        if self.time_limit == 0:
+            self.playerGame.stop_game()
+            self.opponentGame.stop_game()
+            self.stop_refresh_timer()
+            if self.playerGame.tetris_grid.score > self.opponentGame.tetris_grid.score:
+                messagebox.showinfo("Time's up!", "The game is over!\n You won!")
+            elif self.playerGame.tetris_grid.score < self.opponentGame.tetris_grid.score:
+                messagebox.showinfo("Time's up!", "The game is over!\n You lost!")
+            elif self.playerGame.tetris_grid.score == self.opponentGame.tetris_grid.score:
+                messagebox.showinfo("Time's up!", "The game is over!\n It is a tie!")
+            #self.playerGame.send_last_game_data()
+            #self.peer.stop_accepting_connections()
 
-    def go_back(self):
-        self.destroy()
-        #self.master.show()
+        if self.time_limit < 360000 and self.playerGame.is_game_over == True:
+            #self.playerGame.stop_game()
+            self.opponentGame.stop_game()
+            self.stop_refresh_timer()
+            messagebox.showinfo("Game Over", "You lost!")
+            #self.playerGame.send_last_game_data()
+            #self.peer.stop_accepting_connections()
+        elif self.time_limit < 360000 and self.opponentGame.is_game_over == True:
+            self.playerGame.stop_game()
+            #self.opponentGame.stop_game()
+            self.stop_refresh_timer()
+            messagebox.showinfo("Game Over", "You won!")
+            #self.playerGame.send_last_game_data()
+            #self.peer.stop_accepting_connections()
+
+        if self.playerGame.is_game_over == False and self.opponentGame.is_game_over == False and self.time_limit > 0:
+            self.player_timer_label.config(text=str(self.time_limit / 1000))
+            self.player_score_label.config(text=str(self.playerGame.tetris_grid.score))
+            self.opponent_timer_label.config(text=str(self.time_limit / 1000))
+            self.opponent_score_label.config(text=str(self.opponentGame.tetris_grid.score))
+            self.time_limit -= 100
+
+        self.master.after(100, self.refresh_timer)
+
+    def stop_refresh_timer(self):
+        if self.refresh_timer is not None:
+            self.master.after_cancel(self.refresh_timer)
+            self.refresh_timer = None
 
     def show(self):
         self.update()
         self.deiconify()
         self.peer.tetris_gui = self.opponentTetrisGui
         while not self.peer.connected:
-            print("Waiting for Connection")
+            #print("Waiting for Connection")
+            pass
+
+        self.opponentGame.is_game_over = False
         self.playerGame.start_game()
 
     def hide(self):
@@ -314,4 +361,7 @@ class BattlePage(tk.Toplevel):
 
 if __name__ == "__main__":
     app = TetrisStartPage()
-    app.mainloop()
+    try:
+        app.mainloop()
+    except KeyboardInterrupt:
+        print("GUI application interrupted by user")

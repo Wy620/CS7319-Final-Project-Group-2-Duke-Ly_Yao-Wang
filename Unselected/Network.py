@@ -1,4 +1,5 @@
 import socket
+import threading
 from threading import Thread
 
 
@@ -31,6 +32,9 @@ class Peer:
         self.server_socket = None
         self.invite_code = invite_code
         self.tetris_gui = None
+
+        # Create a lock for synchronization
+        self.message_lock = threading.Lock()
 
     def connect(self, target_ip_address, invite_code):
         socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,16 +79,20 @@ class Peer:
                     print("Received message from peer", socket_connection.getpeername(), ":", received_message)
                     self.tetris_gui.game.deserialize_from_json(received_message)
                     self.tetris_gui.game.update_view()
-                    #self.tetris_gui.draw_piece()
-                    #self.tetris_gui.draw_next_shape()
-                    #for peer_socket in self.connections:
-                        #if peer_socket != socket_connection:
-                            #peer_socket.sendall(received_message.encode())
+
+
+            except ConnectionResetError as e:
+                print("Connection reset by peer:", e)
 
             except Exception as e:
                 print("Error reading message from peer:", e)
-                self.connections.remove(socket_connection)
-                socket_connection.close()
+
+            finally:
+                # Remove the socket connection from the list if it's still there
+                with self.message_lock:
+                    if socket_connection in self.connections:
+                        self.connections.remove(socket_connection)
+                        socket_connection.close()
 
         self.connected = True
         communication_thread = Thread(target=communicate)

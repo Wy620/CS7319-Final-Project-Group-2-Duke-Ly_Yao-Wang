@@ -1,3 +1,5 @@
+import threading
+import time
 import tkinter as tk
 import json
 import random
@@ -227,9 +229,21 @@ class TetrisGame:
         self.is_game_over = True
         self.allow_inputs = False
         self.gui = None
-        self.drop_timer = None  # Initialize drop timer
+        self.drop_timer = None
         self.message_timer = None
         self.peer = peer
+        self.lose_game = False
+
+    def stop_game(self):
+        self.is_game_over = True
+        self.allow_inputs = False
+        if self.drop_timer is not None:
+            self.master.after_cancel(self.drop_timer)
+            self.drop_timer = None
+
+        if self.message_timer is not None:
+            self.master.after_cancel(self.message_timer)
+            self.message_timer = None
 
     def start_game(self):
         self.is_game_over = False
@@ -255,11 +269,21 @@ class TetrisGame:
         self.drop_timer = self.master.after(self.DROP_INTERVAL, self.drop_piece)
 
     def send_game_data(self):
-        self.peer.send_message(json.dumps(self.serialize_to_json()))
+        #self.peer.send_message(json.dumps(self.serialize_to_json()))
+        str_msg = json.dumps(self.serialize_to_json())
+        msg_thread = threading.Thread(target=self.peer.send_message, args=(str_msg,))
+        msg_thread.start()
+        msg_thread.join()
         self.reset_message_timer()
 
+    def send_last_game_data(self):
+        str_msg = json.dumps(self.serialize_to_json())
+        msg_thread = threading.Thread(target=self.peer.send_message, args=(str_msg,))
+        msg_thread.start()
+        msg_thread.join()
+
     def init_message_timer(self):
-        self.message_timer = self.master.after(250, self.send_game_data)
+        self.message_timer = self.master.after(500, self.send_game_data)
 
     def reset_message_timer(self):
         if self.message_timer:
@@ -285,6 +309,7 @@ class TetrisGame:
             self.spawn_piece()
             if not self.move_piece(0, 1):
                 self.is_game_over = True
+                self.lose_game = True
             else:
                 self.drop_piece()  # Recursive call with condition to stop
         else:
@@ -351,7 +376,8 @@ class TetrisGame:
             "tetris_grid": self.serialize_grid(),
             "current_piece": self.serialize_current_piece(),
             "next_shape": self.serialize_next_shape(),
-            "score": self.tetris_grid.score
+            "score": self.tetris_grid.score,
+            "is_game_over": self.is_game_over
         }
         return serialized_data
 
@@ -384,19 +410,18 @@ class TetrisGame:
     def deserialize_from_json(self, json_data):
         game_data = json.loads(json_data)
         #print(game_data)
-        # self.tetris_grid = None
         self.tetris_grid.deserialize_grid_from_json(game_data["tetris_grid"])
-        # self.current_piece = None
         current_piece_data = game_data["current_piece"]
         if current_piece_data:
             self.current_piece = Tetrimino(current_piece_data["shape"], current_piece_data["color"],
                                            current_piece_data["x"],
                                            current_piece_data["y"])
-        # self.next_shape = None
+
         next_shape_data = game_data["next_shape"]
         if next_shape_data:
             self.next_shape = Tetrimino(next_shape_data["shape"], next_shape_data["color"])
         self.tetris_grid.score = game_data["score"]
+        self.is_game_over = game_data["is_game_over"]
 
 
 class TetrisGUI:
