@@ -22,12 +22,8 @@ class NextShapeWindow:
                     if cell:
                         canvas_x = x * self.cell_size + 2 * self.cell_size
                         canvas_y = y * self.cell_size + 1 * self.cell_size
-                        self.canvas.create_rectangle(canvas_x, canvas_y,
-                                                     canvas_x + self.cell_size,
-                                                     canvas_y + self.cell_size,
-                                                     fill=color,
-                                                     outline="white",
-                                                     tags="next_shape")
+                        self.canvas.create_rectangle(canvas_x, canvas_y, canvas_x + self.cell_size, canvas_y + self.cell_size,
+                                                     fill=color, outline="white", tags="next_shape")
 
 
 class Tetrimino:
@@ -326,7 +322,7 @@ class TetrisGame:
         return False
 
     def handle_input(self, event):
-
+        if self.allow_inputs:
             if event.keysym == 'Left':
                 self.move_piece(-1, 0)
             elif event.keysym == 'Right':
@@ -455,8 +451,7 @@ class TetrisGUI:
                     color = self.game.colors[cell]  # Get color from game's color dictionary
                     canvas_x = x * self.cell_size
                     canvas_y = y * self.cell_size
-                    self.canvas.create_rectangle(canvas_x, canvas_y, canvas_x + self.cell_size,
-                                                 canvas_y + self.cell_size, fill=color,
+                    self.canvas.create_rectangle(canvas_x, canvas_y, canvas_x + self.cell_size, canvas_y + self.cell_size, fill=color,
                                                  outline="white", tags="piece")
         if self.game.current_piece:
             shape = self.game.current_piece.shape
@@ -466,8 +461,7 @@ class TetrisGUI:
                         color = self.game.colors[self.game.current_piece.color]  # Access colors from game
                         canvas_x = (self.game.current_piece.x + x) * self.cell_size
                         canvas_y = (self.game.current_piece.y + y) * self.cell_size
-                        self.canvas.create_rectangle(canvas_x, canvas_y, canvas_x + self.cell_size,
-                                                     canvas_y + self.cell_size, fill=color,
+                        self.canvas.create_rectangle(canvas_x, canvas_y, canvas_x + self.cell_size, canvas_y + self.cell_size, fill=color,
                                                      outline="white", tags="piece")
 
     def draw_next_shape(self, shape):

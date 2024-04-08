@@ -7,17 +7,17 @@ from Network import Peer
 from Game_Logic import TetrisGUI, NextShapeWindow
 from Game_Logic import TetrisGame
 
-# Colors
+# Constants for colors
 WHITE = "#ffffff"
 BLACK = "#000000"
 GRAY = "#cccccc"
 RED = "#ff0000"
 
-# Screen dimensions
+# Constants for screen dimensions
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
-# Buttons dimensions
+# Constants for button dimensions
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
 
@@ -34,7 +34,7 @@ class TetrisStartPage(tk.Tk):
         self.canvas = tk.Canvas(self, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, bg=WHITE)
         self.canvas.pack()
 
-        # Draw Tetris Gird (Placeholder)
+        # Draw Tetris Grid (Placeholder)
         self.canvas.create_rectangle(100, 50, 100 + 10 * SCALE, 50 + 20 * SCALE, fill=GRAY, outline="")
 
         # Draw Title
@@ -117,8 +117,7 @@ class CreateGamePage(tk.Toplevel):
         invite_code_label.place(x=50, y=200, anchor="nw")
 
         # Draw "Create Game" button
-        create_button = tk.Button(self, text="Create Game", font=tkfont.Font(family="Helvetica", size=14),
-                                  command=self.go_to_battle_page)
+        create_button = tk.Button(self, text="Create Game", font=tkfont.Font(family="Helvetica", size=14), command=self.go_to_battle_page)
         create_button.place(x=750, y=175, width=BUTTON_WIDTH, height=BUTTON_HEIGHT)
 
         # Draw "Go Back" button
@@ -202,7 +201,6 @@ class PlayerConnectPage(tk.Toplevel):
     def go_to_battle_page(self):
         self.peer = Peer(self.player_ip_input.get_text(), self.invite_code_input.get_text())
         Thread(target=self.peer.connect(self.opponent_ip_input.get_text(), self.invite_code_input.get_text())).start()
-        #self.peer.connect(self.opponent_ip_input.get_text(), self.invite_code_input.get_text())
         self.hide()
         battle_page = BattlePage(self, self.peer)
         battle_page.show()
@@ -279,8 +277,7 @@ class BattlePage(tk.Toplevel):
         # Draw "Next Shape" boxes
         self.canvas.create_text(375, 50, text="Next Shape", fill=BLACK, font=("Helvetica", 16, "bold"))
         self.draw_next_shape_box(325, 75)
-        self.canvas.create_text(SCREEN_WIDTH // 2 + 375, 50, text="Next Shape", fill=BLACK,
-                                font=("Helvetica", 16, "bold"))
+        self.canvas.create_text(SCREEN_WIDTH // 2 + 375, 50, text="Next Shape", fill=BLACK, font=("Helvetica", 16, "bold"))
         self.draw_next_shape_box(SCREEN_WIDTH // 2 + 325, 75)
 
         # Draw labels

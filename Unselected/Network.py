@@ -2,7 +2,7 @@ import socket
 import threading
 from threading import Thread
 
-
+# Class for checking IPv4 address
 class Ipv4Checker:
     def get_ipv4_address(self):
         self.s = None
@@ -21,7 +21,7 @@ class Ipv4Checker:
             # Close the socket
             self.s.close()
 
-
+# Class representing a peer
 class Peer:
     def __init__(self, ip_address, invite_code):
         self.ip_address = ip_address
@@ -36,6 +36,7 @@ class Peer:
         # Create a lock for synchronization
         self.message_lock = threading.Lock()
 
+    # Method to connect to a peer
     def connect(self, target_ip_address, invite_code):
         socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_connection.connect((target_ip_address, self.port))
@@ -49,6 +50,7 @@ class Peer:
             print("Connection refused. Invalid invite code.")
             socket_connection.close()
 
+    # Method to start accepting incoming connections
     def start_accepting_connections(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.ip_address, self.port))
@@ -68,6 +70,7 @@ class Peer:
                 socket_connection.sendall("Refused".encode())
                 socket_connection.close()
 
+    # Method to start communication with a peer
     def start_communication(self, socket_connection):
         def communicate():
             try:
@@ -79,14 +82,10 @@ class Peer:
                     print("Received message from peer", socket_connection.getpeername(), ":", received_message)
                     self.tetris_gui.game.deserialize_from_json(received_message)
                     self.tetris_gui.game.update_view()
-
-
             except ConnectionResetError as e:
                 print("Connection reset by peer:", e)
-
             except Exception as e:
                 print("Error reading message from peer:", e)
-
             finally:
                 # Remove the socket connection from the list if it's still there
                 with self.message_lock:
@@ -98,9 +97,11 @@ class Peer:
         communication_thread = Thread(target=communicate)
         communication_thread.start()
 
+    # Method to send a message to all connected peers
     def send_message(self, message):
         self.send_message_to_all(message)
 
+    # Method to send a message to all connected peers
     def send_message_to_all(self, message):
         for socket_connection in self.connections:
             try:
@@ -110,6 +111,7 @@ class Peer:
                 self.connections.remove(socket_connection)
                 socket_connection.close()
 
+    # Method to stop accepting incoming connections
     def stop_accepting_connections(self):
         self.accepting_connections = False
         if self.server_socket:
