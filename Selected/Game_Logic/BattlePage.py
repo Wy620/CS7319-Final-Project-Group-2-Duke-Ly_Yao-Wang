@@ -12,11 +12,11 @@ class BattlePage:
 
     def __init__(self, peer):
         self.remote_tetrimino = Tetrimino()
-        self.FPS = 30
+        self.FPS = 15
         self.GAME_ON = True
         pygame.init()
 
-        self.BORDER_WIDTH = 10  # 宽边框的宽度
+        self.BORDER_WIDTH = 10
         self.window_width = (COL * SIZE) * 2 + (SCORE_FEILD * SIZE) * 2
         self.window_height = ROW * SIZE
 
@@ -44,7 +44,6 @@ class BattlePage:
                             self.GAME_ON = True
                             Game_Board.Restart()
 
-                    # Movement and rotation logic here...
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN:
                             if not GAME_ON:
@@ -140,10 +139,9 @@ class BattlePage:
             if local_game_over or online_game_over:
                 self.GAME_ON = False
 
-                # 如果本地游戏结束，而在线游戏还没结束，则本地输，否则赢
                 win = not local_game_over and online_game_over
                 self.show_end_game_message(win=win)
-                break  # 退出游戏循环
+                break
 
 
     def draw_next_tetrimino(self, surface, tetrimino):
@@ -162,10 +160,10 @@ class BattlePage:
         font = pygame.font.Font(None, 72)
         if win:
             message = "You Win!"
-            color = (0, 255, 0)  # 绿色
+            color = (0, 255, 0)
         else:
             message = "You Lose!"
-            color = (255, 0, 0)  # 红色
+            color = (255, 0, 0)
 
         text = font.render(message, True, color)
         text_rect = text.get_rect(center=(self.window_width / 2, self.window_height / 2))
@@ -180,7 +178,6 @@ class BattlePage:
 
         # Update and draw local game board on the left
         Game_Board.Update(self.Main_Window, offset_x=0)
-
         self.my_tetrimino.update(self.Main_Window, self.my_tetrimino.tetrimino, 'blue', self.my_tetrimino.rotation, offset_x=0)
 
         if self.peer.connected:
@@ -197,8 +194,6 @@ class BattlePage:
             self.peer.send_data(local_state)
             print("Sent local state.")
 
-            print("local position:", self.my_tetrimino.position)
-
             remote_data = self.peer.receive_data()
             if remote_data:
                 print("Received remote data:")
@@ -208,33 +203,25 @@ class BattlePage:
                 remote_board = remote_data["board"]
                 remote_score = remote_data["score"]
 
-                # Update and draw remote game board
                 self.Online_Game_Board.board = remote_board
                 self.Online_Game_Board.score = remote_score
 
                 print("remote tetrimino position:", self.remote_tetrimino.position)
-                # Assuming the right side position for the remote board
-                right_side_offset = COL * SIZE + SCORE_FEILD * SIZE  # Adjust as necessary
+                right_side_offset = COL * SIZE + SCORE_FEILD * SIZE
                 self.Online_Game_Board.Update(self.Main_Window,offset_x=right_side_offset)
-
-
-                remote_tetrimino_offset = COL * SIZE + SCORE_FEILD * SIZE + self.remote_tetrimino.position * SIZE
-                self.remote_tetrimino.update(self.Main_Window, self.remote_tetrimino.shape, "green", self.remote_tetrimino.rotation, offset_x=16)
+                # remote_tetrimino_offset = right_side_offset
+                self.remote_tetrimino.update(self.Main_Window, self.remote_tetrimino.shape, "green",self.remote_tetrimino.rotation, offset_x=16)
 
         pygame.display.update()
 
         if Game_Board.Game_Over() or self.Online_Game_Board.Game_Over():
             self.GAME_ON = False
 
-
-
-# If you have a separate main function to start BattlePage
 def main(peer):
     battle_page = BattlePage(peer)
     battle_page.run()
     battle_page.main_game_logic()
 
 if __name__ == "__main__":
-    # 修改为不再调用 main()，而是直接传入 peer
     peer = p2p()
     main(peer)

@@ -1,8 +1,6 @@
 import pygame
 import sys
 
-
-
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -32,7 +30,6 @@ def draw_button(screen, x, y, width, height, color, text):
     text_surface = font.render(text, True, BLACK)
     text_rect = text_surface.get_rect(center=(x + width / 2, y + height / 2))
     screen.blit(text_surface, text_rect)
-
 
 # Main loop
 running = True

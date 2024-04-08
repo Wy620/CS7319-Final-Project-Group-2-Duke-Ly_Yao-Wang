@@ -7,16 +7,13 @@ import time
 import sys
 
 class p2p:
-
-
-    def __init__(self, ip_address="127.0.0.1", invite_code="test123"):
+    def __init__(self, ip_address, invite_code):
         self.ip_address = ip_address
         self.invite_code = invite_code
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_started = False
         self.connected = False
-
-        self.HEADER_SIZE = 10  # Adjust as needed
+        self.HEADER_SIZE = 10
 
     def start_server(self):
         try:
@@ -45,9 +42,7 @@ class p2p:
                 print(f"Failed to connect: {e}")
 
     def derive_port_from_code(self, code):
-        # Convert the invite code into a port number (this is just an example)
-        return 5000  # Replace with your logic
-
+        return 5000
 
     def send_data(self, data):
         try:
@@ -65,9 +60,9 @@ class p2p:
         new_msg = True
         while True:
             if self.server_started:
-                received_chunk = self.connection.recv(16)  # Adjust buffer size as needed
+                received_chunk = self.connection.recv(16)
             else:
-                received_chunk = self.socket.recv(16)  # Adjust buffer size as needed
+                received_chunk = self.socket.recv(16)
             if new_msg:
                 data_length = int(received_chunk[:self.HEADER_SIZE])
                 new_msg = False
@@ -83,9 +78,7 @@ class p2p:
             return {}
 
     def disconnect(self):
-        """
-        Disconnect from the peer.
-        """
+
         try:
             self.connection.close()
             self.socket.close()
@@ -94,6 +87,7 @@ class p2p:
         except socket.error as e:
             print(f"Disconnection error: {e}")
 
+"""
     def run_test(self):  # Only for testing
         if len(sys.argv) == 2 and sys.argv[1] == 'server':
             print("Starting server for testing...")
@@ -132,3 +126,4 @@ class p2p:
 if __name__ == "__main__":
     peer = Peer()
     peer.run_test()
+"""
