@@ -1,7 +1,7 @@
 import sys
 import pygame
 
-from Board import ROW, COL, SIZE, SCORE_FEILD, Board
+from Board import ROW, COL, SIZE, SCORE_FEILD, Board, SCORE_POS
 from P2P import p2p
 from Tetri import Tetrimino, Game_Board
 from Tetrimino_list import T, J, L, S, I, Z
@@ -9,19 +9,20 @@ from Tetrimino_list import T, J, L, S, I, Z
 
 class BattlePage:
     def __init__(self, peer):
+        self.remote_tetrimino = Tetrimino()
         self.FPS = 30
         self.GAME_ON = True
         pygame.init()
 
         window_width = (COL * SIZE) * 2 + (SCORE_FEILD * SIZE) * 2
         window_height = ROW * SIZE
+        self.NEXT_TETRIMINO_POS = (SCORE_POS[0], SCORE_POS[1] + 5)
         self.Main_Window = pygame.display.set_mode((window_width, window_height))
 
         self.my_tetrimino = Tetrimino()
         self.clock = pygame.time.Clock()
         self.Online_Game_Board = Board()
         self.peer = peer
-
 
     def run(self):
         while True:
@@ -127,20 +128,33 @@ class BattlePage:
             if self.GAME_ON:
                 self.main_game_logic()
 
+    def draw_next_tetrimino(self, surface, tetrimino):
+        x, y = self.NEXT_TETRIMINO_POS  # Use the calculated position
+
+        for i, row in enumerate(tetrimino.shape[tetrimino.rotation]):
+            for j, cell in enumerate(row):
+                if cell == '1':  # Assuming '1' marks the blocks of the tetrimino
+                    pygame.draw.rect(surface, "green",
+                                     (x + j * SIZE - 60, y + i * SIZE + 100, SIZE - 4, SIZE - 4))
+
     def main_game_logic(self):
         self.Main_Window.fill("#ffffff")
 
         # Update and draw local game board on the left
         Game_Board.Update(self.Main_Window, offset_x=0)
 
-        self.my_tetrimino.update(self.Main_Window, self.my_tetrimino.tetrimino, 'blue', self.my_tetrimino.rotation)
+        self.my_tetrimino.update(self.Main_Window, self.my_tetrimino.tetrimino, 'blue', self.my_tetrimino.rotation, offset_x=0)
 
         if self.peer.connected:
             print("Peer is connected.")
             local_state = {
+                "tetrimino": {
+                    "shape": self.my_tetrimino.tetrimino,
+                    "position": self.my_tetrimino.position,
+                    "rotation": self.my_tetrimino.rotation
+                },
                 "board": Game_Board.board.tolist(),
                 "score": Game_Board.score,
-                "tetrimino": self.my_tetrimino.tetrimino
             }
             self.peer.send_data(local_state)
             print("Sent local state.")
@@ -148,9 +162,12 @@ class BattlePage:
             remote_data = self.peer.receive_data()
             if remote_data:
                 print("Received remote data:")
+                self.remote_tetrimino.shape = remote_data["tetrimino"]["shape"]
+                self.remote_tetrimino.position = remote_data["tetrimino"]["position"]
+                self.remote_tetrimino.rotation = remote_data["tetrimino"]["rotation"]
                 remote_board = remote_data["board"]
                 remote_score = remote_data["score"]
-                remote_tetrimino = remote_data["tetrimino"]
+
 
                 # Update and draw remote game board
                 self.Online_Game_Board.board = remote_board
@@ -159,6 +176,9 @@ class BattlePage:
                 # Assuming the right side position for the remote board
                 right_side_offset = COL * SIZE + SCORE_FEILD * SIZE  # Adjust as necessary
                 self.Online_Game_Board.Update(self.Main_Window,offset_x=right_side_offset)
+
+                self.remote_tetrimino.update(self.Main_Window, self.remote_tetrimino.shape, "red",
+                                             self.remote_tetrimino.rotation, offset_x=right_side_offset)
 
         pygame.display.update()
 

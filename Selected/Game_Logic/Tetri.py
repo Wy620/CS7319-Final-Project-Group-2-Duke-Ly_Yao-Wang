@@ -10,17 +10,21 @@ class Tetrimino():
     def __init__(self) -> None:
         super().__init__()
         self.tetrimino = random.choice(TETRIMINO)
+        self.shape = random.choice(TETRIMINO)
         self.position = 3
         self.rotation = 0
         self.speed = 0
 
-    def Draw(self, surface, tetrimino, color, rotation):
-        for j in range(len(tetrimino[rotation][0])):
-            for i in range(len(tetrimino[rotation])):
+    def Draw(self, surface, tetrimino, color, rotation, offset_x=0):
+        for i in range(len(tetrimino[rotation])):
+            for j in range(len(tetrimino[rotation][0])):
                 if tetrimino[rotation][i][j] == '1':
+                    # Draw the block with the offset
                     pygame.draw.rect(surface, color,
-                                     ((j + self.position) * SIZE, (i + int(self.speed)) * SIZE, SIZE - 1, SIZE - 1))
+                                     ((j + self.position + offset_x) * SIZE, (i + int(self.speed)) * SIZE, SIZE - 1,
+                                      SIZE - 1))
 
+                    # Collision detection and board update logic should not use the offset
                     if (i + int(self.speed) + 1) < ROW and Game_Board.board[j + self.position][i + int(self.speed) + 1]:
                         for x in range(len(tetrimino[rotation])):
                             for y in range(len(tetrimino[rotation][0])):
@@ -78,6 +82,8 @@ class Tetrimino():
         self.position = 3
         self.rotation = 0
         self.speed = 0
+        self.tetrimino = self.next_tetrimino
+        self.next_tetrimino = self.generate_new_tetrimino()
 
     def Put_into_Board(self, i, tetrimino, rotation, speed, position, Game_Board):
         if i + int(self.speed) == ROW:
@@ -87,6 +93,10 @@ class Tetrimino():
                         Game_Board[y + position][int(x + speed)] = 1
             self.Next_round()
 
-    def update(self, surface, tetrimino, color, rotation):
-        self.Draw(surface, tetrimino, color, rotation)
+    def update(self, surface, tetrimino, color, rotation, offset_x=0):
+        self.Draw(surface, tetrimino, color, rotation, offset_x)
         self.speed += 0.1
+
+    def generate_new_tetrimino(self):
+        return random.choice(TETRIMINO)
+        pass
