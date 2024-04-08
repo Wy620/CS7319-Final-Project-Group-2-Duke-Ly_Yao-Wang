@@ -8,16 +8,20 @@ from Tetrimino_list import T, J, L, S, I, Z
 
 
 class BattlePage:
+
+
     def __init__(self, peer):
         self.remote_tetrimino = Tetrimino()
         self.FPS = 30
         self.GAME_ON = True
         pygame.init()
 
-        window_width = (COL * SIZE) * 2 + (SCORE_FEILD * SIZE) * 2
-        window_height = ROW * SIZE
+        self.BORDER_WIDTH = 10  # 宽边框的宽度
+        self.window_width = (COL * SIZE) * 2 + (SCORE_FEILD * SIZE) * 2
+        self.window_height = ROW * SIZE
+
+        self.Main_Window = pygame.display.set_mode((self.window_width, self.window_height))
         self.NEXT_TETRIMINO_POS = (SCORE_POS[0], SCORE_POS[1] + 5)
-        self.Main_Window = pygame.display.set_mode((window_width, window_height))
 
         self.my_tetrimino = Tetrimino()
         self.my_tetrimio_1 = Tetrimino()
@@ -130,14 +134,46 @@ class BattlePage:
             if self.GAME_ON:
                 self.main_game_logic()
 
+            local_game_over = Game_Board.Game_Over()
+            online_game_over = self.Online_Game_Board.Game_Over()
+
+            if local_game_over or online_game_over:
+                self.GAME_ON = False
+
+                # 如果本地游戏结束，而在线游戏还没结束，则本地输，否则赢
+                win = not local_game_over and online_game_over
+                self.show_end_game_message(win=win)
+                break  # 退出游戏循环
+
+
     def draw_next_tetrimino(self, surface, tetrimino):
-        x, y = self.NEXT_TETRIMINO_POS  # Use the calculated position
+        x, y = self.NEXT_TETRIMINO_POS
 
         for i, row in enumerate(tetrimino.shape[tetrimino.rotation]):
             for j, cell in enumerate(row):
-                if cell == '1':  # Assuming '1' marks the blocks of the tetrimino
+                if cell == '1':
                     pygame.draw.rect(surface, "green",
                                      (x + j * SIZE - 60, y + i * SIZE + 100, SIZE - 4, SIZE - 4))
+
+    def show_end_game_message(self, win):
+        translucent_surface = pygame.Surface((self.window_width, self.window_height), pygame.SRCALPHA)
+        translucent_surface.fill((0, 0, 0, 128))
+
+        font = pygame.font.Font(None, 72)
+        if win:
+            message = "You Win!"
+            color = (0, 255, 0)  # 绿色
+        else:
+            message = "You Lose!"
+            color = (255, 0, 0)  # 红色
+
+        text = font.render(message, True, color)
+        text_rect = text.get_rect(center=(self.window_width / 2, self.window_height / 2))
+        translucent_surface.blit(text, text_rect)
+
+        self.Main_Window.blit(translucent_surface, (0, 0))
+        pygame.display.update()
+        pygame.time.delay(3000)
 
     def main_game_logic(self):
         self.Main_Window.fill("#ffffff")
@@ -189,6 +225,7 @@ class BattlePage:
 
         if Game_Board.Game_Over() or self.Online_Game_Board.Game_Over():
             self.GAME_ON = False
+
 
 
 # If you have a separate main function to start BattlePage

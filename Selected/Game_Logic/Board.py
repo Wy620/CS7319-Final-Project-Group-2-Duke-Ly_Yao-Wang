@@ -19,10 +19,8 @@ class Board():
         for j in range(COL):
             for i in range(ROW):
                 x_position = j * SIZE + offset_x
-                if self.board[j][i] == 0:
-                    pygame.draw.rect(surface, COLOR_NONE, (x_position, i * SIZE, SIZE - 1, SIZE - 1))
-                if self.board[j][i] == 1:
-                    pygame.draw.rect(surface, 'red', (x_position, i * SIZE, SIZE - 1, SIZE - 1))
+                color = 'red' if self.board[j][i] == 1 else COLOR_NONE
+                pygame.draw.rect(surface, color, (x_position, i * SIZE, SIZE - 1, SIZE - 1))
 
     def Load_Side(self, surface, offset_x=0):
         for i in range(COL, COL + SCORE_FEILD):
