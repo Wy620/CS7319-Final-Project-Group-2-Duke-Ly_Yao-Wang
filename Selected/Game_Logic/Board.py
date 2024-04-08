@@ -1,19 +1,19 @@
-import pygame
 import numpy as np
+import pygame
 
 COL = 10
 ROW = 25
 SIZE = 30
 SCORE_FEILD = 6
 COLOR_NONE = '#3c3c3c'
-SCORE_POS = (int(COL + 0.6*SCORE_FEILD)*SIZE,2*SIZE)
+SCORE_POS = (int(COL + 0.6 * SCORE_FEILD) * SIZE, 2 * SIZE)
+
 
 class Board():
     def __init__(self):
         super().__init__()
-        self.board = np.zeros((COL,ROW))
+        self.board = np.zeros((COL, ROW))
         self.score = 0
-
 
     def Load_Game(self, surface, offset_x=0):
         for j in range(COL):
@@ -43,9 +43,9 @@ class Board():
                 for j in range(COL):
                     self.board[j][i] = 0
                 score += 1
-                for m in range(i,0,-1):
+                for m in range(i, 0, -1):
                     for n in range(COL):
-                        self.board[n][m] = self.board[n][m-1]
+                        self.board[n][m] = self.board[n][m - 1]
         return score
 
     def Game_Over(self):
@@ -54,13 +54,13 @@ class Board():
                 return True
 
     def Restart(self):
-        self.board = np.zeros((COL,ROW))
+        self.board = np.zeros((COL, ROW))
         self.score = 0
 
     def Update(self, surface, offset_x=0):
         self.Load_Game(surface, offset_x)
         self.score += self.Get_Score()
-        self.score_font = pygame.font.Font('SmileySans-Oblique.ttf',80).render(str(self.score),True,'white')
-        self.score_font_rect = self.score_font.get_rect(center = (SCORE_POS[0] + offset_x, SCORE_POS[1]))
+        self.score_font = pygame.font.Font('SmileySans-Oblique.ttf', 80).render(str(self.score), True, 'white')
+        self.score_font_rect = self.score_font.get_rect(center=(SCORE_POS[0] + offset_x, SCORE_POS[1]))
         self.Load_Side(surface, offset_x)
         self.Get_Score()

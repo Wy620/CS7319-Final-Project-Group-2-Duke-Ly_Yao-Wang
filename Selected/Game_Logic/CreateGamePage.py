@@ -1,6 +1,6 @@
 import pygame
 import sys
-from P2P import Peer
+from P2P import p2p
 
 # Colors
 WHITE = (255, 255, 255)
@@ -104,13 +104,26 @@ while running:
 
                 create_ip_address = player_ip_input.text if player_ip_input.text else "127.0.0.1"
                 create_invite_code = invite_code_input.text if invite_code_input.text else "test123"
-                peer = Peer(create_ip_address, create_invite_code)
+                peer = p2p(create_ip_address, create_invite_code)
                 peer.start_server()
+                peer.connect()
 
                 if peer.server_started:
                     print("Server started successfully.")
+                    if peer.connected:
+                        print("Client connected. Waiting for data...")
+                        # Receiving data from client
+                        try:
+                            data = peer.receive_data()
+                            if data:
+                                print("Received data from client:", data)
+                            else:
+                                print("No data received from client.")
+                        except Exception as e:
+                            print("Error receiving data:", e)
+
                     from Selected.Game_Logic.BattlePage import main as battle_page
-                    battle_page()
+                    battle_page(peer)
                     running = False
                 else:
                     print("Failed to connect to the server. Please try again.")
