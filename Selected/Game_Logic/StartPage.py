@@ -1,6 +1,8 @@
 import pygame
 import sys
 
+image = pygame.image.load('sample.png')
+image = pygame.transform.scale(image, (150, 300))
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -38,6 +40,9 @@ while running:
 
     # Draw Tetris grid (placeholder)
     pygame.draw.rect(screen, GRAY, (100, 50, 10 * 15, 20 * 15))
+    image_x, image_y = 100, 50  # Replace with desired position
+    screen.blit(image, (image_x, image_y))
+
 
     # Draw buttons
     draw_button(screen, 500, 150, BUTTON_WIDTH, BUTTON_HEIGHT, GRAY, "Start a Game")
