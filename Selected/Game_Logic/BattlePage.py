@@ -129,39 +129,36 @@ class BattlePage:
 
     def main_game_logic(self):
         self.Main_Window.fill("#ffffff")
-        Game_Board.Update(self.Main_Window)
+
+        # Update and draw local game board on the left
+        Game_Board.Update(self.Main_Window, offset_x=0)
+
         self.my_tetrimino.update(self.Main_Window, self.my_tetrimino.tetrimino, 'blue', self.my_tetrimino.rotation)
 
         if self.peer.connected:
             print("Peer is connected.")
-            # 如果连接到了对等方，将本地游戏状态打包成 JSON，并发送给服务器
-            local_state = {"board": Game_Board.board.tolist(),
-                           "score": Game_Board.score,
-                           "tetrimino": self.my_tetrimino.tetrimino}
+            local_state = {
+                "board": Game_Board.board.tolist(),
+                "score": Game_Board.score,
+                "tetrimino": self.my_tetrimino.tetrimino
+            }
             self.peer.send_data(local_state)
             print("Sent local state.")
-            #print(local_state)
-        else:
-            print("Peer is not connected.")
 
+            remote_data = self.peer.receive_data()
+            if remote_data:
+                print("Received remote data:")
+                remote_board = remote_data["board"]
+                remote_score = remote_data["score"]
+                remote_tetrimino = remote_data["tetrimino"]
 
+                # Update and draw remote game board
+                self.Online_Game_Board.board = remote_board
+                self.Online_Game_Board.score = remote_score
 
-        remote_data = self.peer.receive_data()
-        # Additional logic here...
-
-
-        if remote_data:
-            print("Received remote data:")
-            print(remote_data)
-            remote_board = remote_data["board"]
-            remote_score = remote_data["score"]
-            remote_tetrimino = remote_data["tetrimino"]
-            self.Online_Game_Board.board = remote_board
-            self.Online_Game_Board.score = remote_score
-            self.my_tetrimino.tetrimino = remote_tetrimino
-            self.Online_Game_Board.Update(self.Main_Window)
-            self.my_tetrimino.update(self.Main_Window, self.my_tetrimino.tetrimino, 'red', self.my_tetrimino.rotation)
-
+                # Assuming the right side position for the remote board
+                right_side_offset = COL * SIZE + SCORE_FEILD * SIZE  # Adjust as necessary
+                self.Online_Game_Board.Update(self.Main_Window,offset_x=right_side_offset)
 
         pygame.display.update()
 
