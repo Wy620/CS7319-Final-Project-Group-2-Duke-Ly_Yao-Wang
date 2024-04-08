@@ -20,6 +20,8 @@ class BattlePage:
         self.Main_Window = pygame.display.set_mode((window_width, window_height))
 
         self.my_tetrimino = Tetrimino()
+        self.my_tetrimio_1 = Tetrimino()
+
         self.clock = pygame.time.Clock()
         self.Online_Game_Board = Board()
         self.peer = peer
@@ -159,6 +161,8 @@ class BattlePage:
             self.peer.send_data(local_state)
             print("Sent local state.")
 
+            print("local position:", self.my_tetrimino.position)
+
             remote_data = self.peer.receive_data()
             if remote_data:
                 print("Received remote data:")
@@ -168,17 +172,18 @@ class BattlePage:
                 remote_board = remote_data["board"]
                 remote_score = remote_data["score"]
 
-
                 # Update and draw remote game board
                 self.Online_Game_Board.board = remote_board
                 self.Online_Game_Board.score = remote_score
 
+                print("remote tetrimino position:", self.remote_tetrimino.position)
                 # Assuming the right side position for the remote board
                 right_side_offset = COL * SIZE + SCORE_FEILD * SIZE  # Adjust as necessary
                 self.Online_Game_Board.Update(self.Main_Window,offset_x=right_side_offset)
 
-                self.remote_tetrimino.update(self.Main_Window, self.remote_tetrimino.shape, "red",
-                                             self.remote_tetrimino.rotation, offset_x=right_side_offset)
+
+                remote_tetrimino_offset = COL * SIZE + SCORE_FEILD * SIZE + self.remote_tetrimino.position * SIZE
+                self.remote_tetrimino.update(self.Main_Window, self.remote_tetrimino.shape, "green", self.remote_tetrimino.rotation, offset_x=16)
 
         pygame.display.update()
 

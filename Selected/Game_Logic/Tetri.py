@@ -10,7 +10,6 @@ class Tetrimino():
     def __init__(self) -> None:
         super().__init__()
         self.tetrimino = random.choice(TETRIMINO)
-        self.shape = random.choice(TETRIMINO)
         self.position = 3
         self.rotation = 0
         self.speed = 0
@@ -82,8 +81,6 @@ class Tetrimino():
         self.position = 3
         self.rotation = 0
         self.speed = 0
-        self.tetrimino = self.next_tetrimino
-        self.next_tetrimino = self.generate_new_tetrimino()
 
     def Put_into_Board(self, i, tetrimino, rotation, speed, position, Game_Board):
         if i + int(self.speed) == ROW:
