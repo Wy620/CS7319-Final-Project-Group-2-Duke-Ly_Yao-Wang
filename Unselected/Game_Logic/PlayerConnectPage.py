@@ -117,7 +117,7 @@ while running:
                     print("Successfully connected to the server.")
                     initial_data = {"message": "Hello from client"}
                     peer.send_data(initial_data)
-                    from Selected.Game_Logic.BattlePage import main as battle_page
+                    from Unselected.Game_Logic.BattlePage import main as battle_page
 
                     battle_page(peer)
                     running = False

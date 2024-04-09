@@ -121,7 +121,7 @@ while running:
                         except Exception as e:
                             print("Error receiving data:", e)
 
-                    from Selected.Game_Logic.BattlePage import main as battle_page
+                    from Unselected.Game_Logic.BattlePage import main as battle_page
                     battle_page(peer)
                     running = False
                 else:

@@ -12,7 +12,7 @@ class BattlePage:
 
     def __init__(self, peer):
         self.remote_tetrimino = Tetrimino()
-        self.FPS = 15
+        self.FPS = 60
         self.GAME_ON = True
         pygame.init()
 
