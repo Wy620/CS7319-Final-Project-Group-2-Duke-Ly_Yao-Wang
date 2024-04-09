@@ -1,0 +1,9 @@
+# Requirements for running the Tetris Online game
+
+# Python version
+python>=3.8
+
+tkinter
+numpy
+pygame
+pylint
